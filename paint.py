@@ -43,14 +43,14 @@ class Paint(object):
         self.root.configure(bg='#3E4149')
         self.root.title("Shape Recognition (Piotr Wrzosek)")
 
-        self.pen_button = Button(self.root, text='capture', command=self.capture_image, highlightbackground='#3E4149', bg='#8c8c8c', fg='#ececec')
+        self.pen_button = Button(self.root, text='save', command=self.save, highlightbackground='#3E4149', bg='#8c8c8c', fg='#ececec')
         self.pen_button.grid(row=0, column=0)
 
         self.color_button = Button(self.root, text='color', command=self.choose_color, highlightbackground='#3E4149', bg='#8c8c8c', fg='#ececec')
-        self.color_button.grid(row=0, column=1)
+        self.color_button.grid(row=0, column=2)
 
         self.eraser_button = Button(self.root, text='clear', command=self.use_eraser, highlightbackground='#3E4149', bg='#8c8c8c', fg='#ececec')
-        self.eraser_button.grid(row=0, column=2)
+        self.eraser_button.grid(row=0, column=1)
 
         self.choose_size_button = Scale(self.root, from_=1, to=10, orient=HORIZONTAL, bg='#3E4149', fg='#ececec')
         self.choose_size_button.grid(row=0, column=3)
@@ -62,6 +62,7 @@ class Paint(object):
         self.root.mainloop()
 
     def setup(self):
+        self.after_id = None
         self.old_x = None
         self.old_y = None
         self.line_width = self.choose_size_button.get()
@@ -163,6 +164,14 @@ class Paint(object):
             self.IMAGE = Image.new('L', (self.RESOLUTION, self.RESOLUTION), self.BACKGROUND_COLOR)
             self.CHANGED = False
 
+    def auto_capture(self):
+        if self.after_id:
+            self.root.after_cancel(self.after_id)
+        self.after_id = self.root.after(670, self.capture_image)
+
+    def save(self):
+        self.BACKGROUND_IMAGE.save("image.png", "png")
+
     def use_eraser(self):
         color = self.color
         self.c.delete('all')
@@ -192,6 +201,7 @@ class Paint(object):
             self.CHANGED = True
         self.old_x = event.x
         self.old_y = event.y
+        self.auto_capture()
 
 
 if __name__ == '__main__':
